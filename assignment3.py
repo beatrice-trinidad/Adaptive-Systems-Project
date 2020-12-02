@@ -62,6 +62,12 @@ df = pd.DataFrame(ratings_dict)
 
 #print(df)
 
+## Make dataframe 25% empty
+for col in df.columns:
+    df.loc[df.sample(frac=0.25).index, col] = pd.np.nan
+
+#print(df)
+
 ## The dataframe should be converted into a dataset that Surprise can read
 reader = Reader(rating_scale=(1, 5))
 
