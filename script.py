@@ -1,5 +1,7 @@
 from surprise import Dataset
 import pandas as pd
+from surprise import KNNBasic
+from surprise.model_selection import cross_validate
 
 # Load the movielens-100k dataset
 data = Dataset.load_builtin('ml-100k')
@@ -26,12 +28,13 @@ lens = pd.merge(movie_ratings, users)
 df = pd.DataFrame(lens)
 
 # Filter out unnecessary columns
-filterData = df[['user_id','movie_id','title']]
+filterData = df[['user_id','movie_id','title','rating']]
 df = filterData
-
-# Make movies into columns
-movieAsColumns = df.pivot(index='user_id', columns='movie_id', values='title')
-df = movieAsColumns
-
 print (df)
 
+# Make movies into columns
+#movieAsColumns = df.pivot(index='user_id', columns='movie_id', values='title')
+#df = movieAsColumns
+
+#most_rated = lens.groupby('title').size().sort_values(ascending=False)[:25]
+#print(most_rated)

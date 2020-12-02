@@ -1,7 +1,8 @@
 from surprise import Dataset
 from surprise import KNNBasic
 import pandas as pd
-import numpy as np
+from surprise import Reader
+from surprise.model_selection import train_test_split
 
 # Load the full dataset
 movieData = pd.read_csv('movieData.csv', index_col=0)
@@ -13,4 +14,14 @@ print(movieData.head())
 movieData_25empty = movieData.stack().sample(frac=0.75).unstack()
 print (movieData_25empty)
 
+reader = Reader(sep=',')
+
+data = Dataset.load_from_file(movieData_25empty, reader=reader)
+
+# We can now use this dataset as we please, e.g. calling cross_validate
+cross_validate(BaselineOnly(), data, verbose=True)
+
 # Run "k-nearest-neighbors (k-NN) with users" algorithm
+trainset = movieData_25empty.build_full_trainset()
+algo = KNNBasic()
+algo.fit(trainset)
