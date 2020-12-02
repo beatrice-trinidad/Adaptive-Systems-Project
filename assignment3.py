@@ -1,6 +1,8 @@
 from surprise import Dataset
 from surprise import KNNBasic
 from surprise import Reader
+from surprise.model_selection import train_test_split
+from surprise.model_selection import cross_validate
 import pandas as pd
 import numpy
 import numpy
@@ -63,8 +65,9 @@ df = pd.DataFrame(ratings_dict)
 #print(df)
 
 ## Make dataframe 25% empty
-for col in df.columns:
-    df.loc[df.sample(frac=0.25).index, col] = pd.np.nan
+## Note: Not doing this anymore - Decided to split train and test set instead of changing data
+#for col in df.columns:
+    #df.loc[df.sample(frac=0.25).index, col] = pd.np.nan
 
 #print(df)
 
@@ -72,3 +75,33 @@ for col in df.columns:
 reader = Reader(rating_scale=(1, 5))
 
 data = Dataset.load_from_df(df[['userID', 'movieID', 'ratings']], reader)
+
+## Splitting our dataset in train and test set in a ratio of 75%:25%
+trainset, testset = train_test_split(data, test_size=0.25)
+
+#print('Number of users: ', trainset.n_users, '\n')
+#print('Number of items: ', trainset.n_items, '\n')
+
+## Run KNNBasic
+my_k = 41 # k (users/neighbors) to be adjusted
+sim_options = {
+    'name': 'cosine',
+    'user_based': True
+}
+algo = KNNBasic(k = my_k, sim_options = sim_options)
+
+## Retrieve the trainset
+algo.fit(trainset)
+
+## Making a prediction
+uid = 8  # User ID to predict with, ex. User 8 is Harry Potter
+iid = 15  # Movie ID to predict with, ex. Movie 15 is E.T.
+
+"""So what is the prediction of Harry Potter's rating on E.T.?"""
+#prediction  = algo.predict(uid, iid, r_ui = None, verbose=True)
+#print(prediction)
+
+## Predicting ratings for all pairs (u, i) that are NOT in the training set
+testset = trainset.build_anti_testset()
+predictions = algo.test(testset)
+#print(predictions)
