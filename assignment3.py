@@ -83,7 +83,7 @@ trainset, testset = train_test_split(data, test_size=0.25)
 #print('Number of items: ', trainset.n_items, '\n')
 
 ## Run KNNBasic
-my_k = 41 # k (users/neighbors) to be adjusted
+my_k = 10 # k (users/neighbors) to be adjusted
 sim_options = {
     'name': 'cosine',
     'user_based': True
@@ -98,10 +98,9 @@ uid = 8  # User ID to predict with, ex. User 8 is Harry Potter
 iid = 15  # Movie ID to predict with, ex. Movie 15 is E.T.
 
 """So what is the prediction of Harry Potter's rating on E.T.?"""
-#prediction  = algo.predict(uid, iid, r_ui = None, verbose=True)
-#print(prediction)
+prediction  = algo.predict(uid, iid, r_ui = None, verbose=True)
+print(prediction)
 
 ## Predicting ratings for all pairs (u, i) that are NOT in the training set
-testset = trainset.build_anti_testset()
 predictions = algo.test(testset)
 #print(predictions)
