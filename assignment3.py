@@ -114,8 +114,10 @@ for x in range(1, 50):
   mae = surprise.accuracy.mae(predictions, verbose=True)
   res_array.append(mae)
 
+print("***** MAEs for ALL USERS with 25 PERCENT EMPTY MATRIX ******")
 min_MAE = min(res_array)
 print(res_array)
+print("***** RESULTS WITH KNN with 25 PERCENT EMPTY MATRIX ******")
 print("Minimum Mean Absolute Error: ", min_MAE)
 print("Best K: ", res_array.index(min_MAE)+1)
 
@@ -152,21 +154,21 @@ predictions = algo.test(testset)
 top_n = get_top_n(predictions, n=10)
 
 # Print the 10 recommended items for each user
-print("Top 10 recommended items for each user:")
+print("***** TOP 10 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
 
 top_n = get_top_n(predictions, n=5)
 
 # Print the 5 recommended items for each user
-print("Top 5 recommended items for each user:")
+print("***** TOP 5 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
 
 top_n = get_top_n(predictions, n=2)
 
 # Print the 2 recommended items for each user
-print("Top 2 recommended items for each user:")
+print("***** TOP 2 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
 
@@ -207,8 +209,10 @@ for x in range(1, 50):
   mae = surprise.accuracy.mae(predictions, verbose=True)
   res_array.append(mae)
 
+print("***** MAEs for ALL USERS with 75 PERCENT EMPTY MATRIX ******")
 min_MAE = min(res_array)
 print(res_array)
+print("***** RESULTS WITH KNN with 75 PERCENT EMPTY MATRIX ******")
 print("Minimum Mean Absolute Error: ", min_MAE)
 print("Best K: ", res_array.index(min_MAE)+1)
 
@@ -245,21 +249,21 @@ predictions = algo.test(testset)
 top_n = get_top_n(predictions, n=10)
 
 # Print the 10 recommended items for each user
-print("Top 10 recommended items for each user:")
+print("***** TOP 10 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
 
 top_n = get_top_n(predictions, n=5)
 
 # Print the 5 recommended items for each user
-print("Top 5 recommended items for each user:")
+print("***** TOP 5 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
 
 top_n = get_top_n(predictions, n=2)
 
 # Print the 2 recommended items for each user
-print("Top 2 recommended items for each user:")
+print("***** TOP 2 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
 
@@ -297,20 +301,22 @@ def get_top_n(predictions, n=10):
     return top_n
 
 
-# First train an SVD algorithm on the movielens dataset.
+# First train an SVD algorithm on the movielens dataset
 algo = SVD()
 algo.fit(trainset)
 
-# Than predict ratings for all pairs (u, i) that are NOT in the training set.
+# Than predict ratings for all pairs (u, i) that are NOT in the training set
 testset = trainset.build_anti_testset()
 predictions = algo.test(testset)
 
 top_n = get_top_n(predictions, n=10)
 
 # Print the recommended items for each user
+print("***** TOP 10 RECOMMENDED ITEMS FOR EACH USER WITH SVD ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
 
 
 ## Calculate SVD's MAE 
+print("***** MAE for SVD ******")
 surprise.accuracy.mae(predictions, verbose=True)
