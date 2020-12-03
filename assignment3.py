@@ -4,6 +4,7 @@ from surprise import Reader
 from surprise.model_selection import train_test_split
 from surprise.model_selection import cross_validate
 import pandas as pd
+import surprise as surprise
 import numpy
 import numpy
 
@@ -31,7 +32,7 @@ for i in range(len(df)): # Traversing through the main list
 #print("Flattened List:",ratings)
 #print (len(ratings))
 
-## Create user array of 1-50 for every movie
+##Create user array of 1-50 for every movie
 userID = []
 userCount = 0
 
@@ -83,24 +84,38 @@ trainset, testset = train_test_split(data, test_size=0.25)
 #print('Number of items: ', trainset.n_items, '\n')
 
 ## Run KNNBasic
-my_k = 10 # k (users/neighbors) to be adjusted
+#my_k = 20 # k (users/neighbors) to be adjusted
 sim_options = {
     'name': 'cosine',
     'user_based': True
 }
-algo = KNNBasic(k = my_k, sim_options = sim_options)
+#algo = KNNBasic(k = my_k, sim_options = sim_options)
 
 ## Retrieve the trainset
-algo.fit(trainset)
+#algo.fit(trainset)
 
 ## Making a prediction
-uid = 8  # User ID to predict with, ex. User 8 is Harry Potter
-iid = 15  # Movie ID to predict with, ex. Movie 15 is E.T.
+uid = 6  # User ID to predict with, ex. User 8 is Harry Potter
+iid = 13  # Movie ID to predict with, ex. Movie 15 is E.T.
 
 """So what is the prediction of Harry Potter's rating on E.T.?"""
-prediction  = algo.predict(uid, iid, r_ui = None, verbose=True)
-print(prediction)
+# prediction  = algo.predict(uid, iid, r_ui = None, verbose=True)
+# print(prediction)
 
 ## Predicting ratings for all pairs (u, i) that are NOT in the training set
-predictions = algo.test(testset)
+# predictions = algo.test(testset)
 #print(predictions)
+
+# calculating mae of prediction
+# mae = surprise.accuracy.mae(predictions, verbose=True)
+
+for x in range(2, 20):
+  my_k = x
+  print("K value : ", x)
+  algo = KNNBasic(k = my_k, sim_options = sim_options)
+  algo.fit(trainset)
+  prediction  = algo.predict(uid, iid, r_ui = None, verbose=True)
+  predictions = algo.test(testset)
+  mae = surprise.accuracy.mae(predictions, verbose=True)
+
+
