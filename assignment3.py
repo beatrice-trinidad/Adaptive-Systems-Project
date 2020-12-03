@@ -83,39 +83,33 @@ trainset, testset = train_test_split(data, test_size=0.25)
 #print('Number of users: ', trainset.n_users, '\n')
 #print('Number of items: ', trainset.n_items, '\n')
 
-## Run KNNBasic
-#my_k = 20 # k (users/neighbors) to be adjusted
+## Define algorithm options
 sim_options = {
-    'name': 'cosine',
+    'name': 'pearson',
     'user_based': True
 }
-#algo = KNNBasic(k = my_k, sim_options = sim_options)
-
-## Retrieve the trainset
-#algo.fit(trainset)
 
 ## Making a prediction
 uid = 6  # User ID to predict with, ex. User 8 is Harry Potter
 iid = 13  # Movie ID to predict with, ex. Movie 15 is E.T.
 
-"""So what is the prediction of Harry Potter's rating on E.T.?"""
-# prediction  = algo.predict(uid, iid, r_ui = None, verbose=True)
-# print(prediction)
+res_array = []
+min_MAE = 0
 
-## Predicting ratings for all pairs (u, i) that are NOT in the training set
-# predictions = algo.test(testset)
-#print(predictions)
-
-# calculating mae of prediction
-# mae = surprise.accuracy.mae(predictions, verbose=True)
-
-for x in range(2, 20):
+for x in range(1, 50):
   my_k = x
   print("K value : ", x)
+  ## Run KNNBasic
   algo = KNNBasic(k = my_k, sim_options = sim_options)
+  ## Retrieve the trainset
   algo.fit(trainset)
-  prediction  = algo.predict(uid, iid, r_ui = None, verbose=True)
-  predictions = algo.test(testset)
+  ## Predicting ratings for all pairs (u, i) that are NOT in the training set
+  predictions = algo.test(testset) 
+  ## Calculate MAE and append it to result array
   mae = surprise.accuracy.mae(predictions, verbose=True)
+  res_array.append(mae)
 
-
+min_MAE = min(res_array)
+print(res_array)
+print("Minimum Mean Absolute Error: ", min_MAE)
+print("Best K: ", res_array.index(min_MAE)+1)
