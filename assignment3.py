@@ -1,6 +1,6 @@
 from collections import defaultdict
 from surprise import Dataset
-from surprise import KNNBasic
+from surprise import SVD, KNNBasic
 from surprise import Reader
 from surprise.model_selection import train_test_split
 from surprise.model_selection import cross_validate
@@ -78,6 +78,10 @@ reader = Reader(rating_scale=(1, 5))
 
 data = Dataset.load_from_df(df[['userID', 'movieID', 'ratings']], reader)
 
+######################################################
+#### TASK #1
+######################################################
+
 ## Splitting our dataset in train and test set in a ratio of 75%:25%
 trainset, testset = train_test_split(data, test_size=0.25)
 
@@ -147,6 +151,166 @@ predictions = algo.test(testset)
 
 top_n = get_top_n(predictions, n=10)
 
+# Print the 10 recommended items for each user
+print("Top 10 recommended items for each user:")
+for uid, user_ratings in top_n.items():
+    print(uid, [iid for (iid, _) in user_ratings])
+
+top_n = get_top_n(predictions, n=5)
+
+# Print the 5 recommended items for each user
+print("Top 5 recommended items for each user:")
+for uid, user_ratings in top_n.items():
+    print(uid, [iid for (iid, _) in user_ratings])
+
+top_n = get_top_n(predictions, n=2)
+
+# Print the 2 recommended items for each user
+print("Top 2 recommended items for each user:")
+for uid, user_ratings in top_n.items():
+    print(uid, [iid for (iid, _) in user_ratings])
+
+
+######################################################
+#### SPARSITY PROBLEM: TASK #2
+######################################################
+
+## Splitting our dataset in train and test set in a ratio of 25%:75%
+trainset, testset = train_test_split(data, test_size=0.75)
+
+#print('Number of users: ', trainset.n_users, '\n')
+#print('Number of items: ', trainset.n_items, '\n')
+
+## Define algorithm options
+sim_options = {
+    'name': 'pearson',
+    'user_based': True
+}
+
+## Making a prediction
+uid = 6  # User ID to predict with, ex. User 8 is Harry Potter
+iid = 13  # Movie ID to predict with, ex. Movie 15 is E.T.
+
+res_array = []
+min_MAE = 0
+
+for x in range(1, 50):
+  my_k = x
+  print("K value : ", x)
+  ## Run KNNBasic
+  algo = KNNBasic(k = my_k, sim_options = sim_options)
+  ## Retrieve the trainset
+  algo.fit(trainset)
+  ## Predicting ratings for all pairs (u, i) that are NOT in the training set
+  predictions = algo.test(testset) 
+  ## Calculate MAE and append it to result array
+  mae = surprise.accuracy.mae(predictions, verbose=True)
+  res_array.append(mae)
+
+min_MAE = min(res_array)
+print(res_array)
+print("Minimum Mean Absolute Error: ", min_MAE)
+print("Best K: ", res_array.index(min_MAE)+1)
+
+def get_top_n(predictions, n=10):
+    """Return the top-N recommendation for each user from a set of predictions.
+
+    Args:
+        predictions(list of Prediction objects): The list of predictions, as
+            returned by the test method of an algorithm.
+        n(int): The number of recommendation to output for each user. Default
+            is 10.
+
+    Returns:
+    A dict where keys are user (raw) ids and values are lists of tuples:
+        [(raw item id, rating estimation), ...] of size n.
+    """
+
+    # First map the predictions to each user.
+    top_n = defaultdict(list)
+    for uid, iid, true_r, est, _ in predictions:
+        top_n[uid].append((iid, est))
+
+    # Then sort the predictions for each user and retrieve the k highest ones.
+    for uid, user_ratings in top_n.items():
+        user_ratings.sort(key=lambda x: x[1], reverse=True)
+        top_n[uid] = user_ratings[:n]
+
+    return top_n
+
+# Than predict ratings for all pairs (u, i) that are NOT in the training set.
+testset = trainset.build_anti_testset()
+predictions = algo.test(testset)
+
+top_n = get_top_n(predictions, n=10)
+
+# Print the 10 recommended items for each user
+print("Top 10 recommended items for each user:")
+for uid, user_ratings in top_n.items():
+    print(uid, [iid for (iid, _) in user_ratings])
+
+top_n = get_top_n(predictions, n=5)
+
+# Print the 5 recommended items for each user
+print("Top 5 recommended items for each user:")
+for uid, user_ratings in top_n.items():
+    print(uid, [iid for (iid, _) in user_ratings])
+
+top_n = get_top_n(predictions, n=2)
+
+# Print the 2 recommended items for each user
+print("Top 2 recommended items for each user:")
+for uid, user_ratings in top_n.items():
+    print(uid, [iid for (iid, _) in user_ratings])
+
+######################################################
+#### MITIGATION OF SPARSITY PROBLEM: TASK #3
+######################################################
+
+## Splitting our dataset in train and test set in a ratio of 25%:75%
+trainset, testset = train_test_split(data, test_size=0.75)
+
+def get_top_n(predictions, n=10):
+    """Return the top-N recommendation for each user from a set of predictions.
+
+    Args:
+        predictions(list of Prediction objects): The list of predictions, as
+            returned by the test method of an algorithm.
+        n(int): The number of recommendation to output for each user. Default
+            is 10.
+
+    Returns:
+    A dict where keys are user (raw) ids and values are lists of tuples:
+        [(raw item id, rating estimation), ...] of size n.
+    """
+
+    # First map the predictions to each user.
+    top_n = defaultdict(list)
+    for uid, iid, true_r, est, _ in predictions:
+        top_n[uid].append((iid, est))
+
+    # Then sort the predictions for each user and retrieve the k highest ones.
+    for uid, user_ratings in top_n.items():
+        user_ratings.sort(key=lambda x: x[1], reverse=True)
+        top_n[uid] = user_ratings[:n]
+
+    return top_n
+
+
+# First train an SVD algorithm on the movielens dataset.
+algo = SVD()
+algo.fit(trainset)
+
+# Than predict ratings for all pairs (u, i) that are NOT in the training set.
+testset = trainset.build_anti_testset()
+predictions = algo.test(testset)
+
+top_n = get_top_n(predictions, n=10)
+
 # Print the recommended items for each user
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
+
+
+## Calculate SVD's MAE 
+surprise.accuracy.mae(predictions, verbose=True)
