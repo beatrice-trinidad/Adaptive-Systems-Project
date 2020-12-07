@@ -102,6 +102,11 @@ iid = 13  # Movie ID to predict with, ex. Movie 15 is E.T.
 res_array = []
 min_MAE = 0
 
+print("\n")
+print("\n")
+print("***** STARTING TASK #1 ******")
+print("\n")
+
 for x in range(1, 50):
   my_k = x
   print("K value : ", x)
@@ -115,9 +120,11 @@ for x in range(1, 50):
   mae = surprise.accuracy.mae(predictions, verbose=True)
   res_array.append(mae)
 
+print("\n")
 print("***** MAEs for ALL USERS with 25 PERCENT EMPTY MATRIX ******")
 min_MAE = min(res_array)
 print(res_array)
+print("\n")
 print("***** RESULTS WITH KNN with 25 PERCENT EMPTY MATRIX ******")
 print("Minimum Mean Absolute Error: ", min_MAE)
 print("Best K: ", res_array.index(min_MAE)+1)
@@ -155,6 +162,7 @@ predictions = algo.test(testset)
 top_n = get_top_n(predictions, n=10)
 
 # Print the 10 recommended items for each user
+print("\n")
 print("***** TOP 10 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
@@ -162,6 +170,7 @@ for uid, user_ratings in top_n.items():
 top_n = get_top_n(predictions, n=5)
 
 # Print the 5 recommended items for each user
+print("\n")
 print("***** TOP 5 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
@@ -169,6 +178,7 @@ for uid, user_ratings in top_n.items():
 top_n = get_top_n(predictions, n=2)
 
 # Print the 2 recommended items for each user
+print("\n")
 print("***** TOP 2 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
@@ -177,10 +187,10 @@ for uid, user_ratings in top_n.items():
 ###                                 ###
 ###     PRECISION AND RECALL 25%    ###
 ###                                 ###
-
+print("\n")
 print("***** PRECISION AND RECALL ******")
 
-def precision_recall_at_k(predictions, k=10, threshold=3.5):
+def precision_recall_at_k(predictions, k=my_k, threshold=3.5):
     """Return precision and recall at k metrics for each user"""
 
     # First map the predictions to each user.
@@ -217,15 +227,16 @@ def precision_recall_at_k(predictions, k=10, threshold=3.5):
 
     return precisions, recalls
 
+
 ## data = Dataset.load_builtin('ml-100k')
 kf = KFold(n_splits=5)
-algo = SVD()
+algo = KNNBasic(k = my_k, sim_options = sim_options)
 
 
 for trainset, testset in kf.split(data):
     algo.fit(trainset)
     predictions = algo.test(testset)
-    precisions, recalls = precision_recall_at_k(predictions, k=10, threshold=3.5)
+    precisions, recalls = precision_recall_at_k(predictions, k=49, threshold=3.5)
 
     # Precision and recall can then be averaged over all users
     print(sum(prec for prec in precisions.values()) / len(precisions))
@@ -235,6 +246,10 @@ for trainset, testset in kf.split(data):
 #### SPARSITY PROBLEM: TASK #2
 ######################################################
 
+print("\n")
+print("\n")
+print("***** STARTING TASK #2 ******")
+print("\n")
 ## Splitting our dataset in train and test set in a ratio of 25%:75%
 trainset, testset = train_test_split(data, test_size=0.75)
 
@@ -267,9 +282,11 @@ for x in range(1, 50):
   mae = surprise.accuracy.mae(predictions, verbose=True)
   res_array.append(mae)
 
+print("\n")
 print("***** MAEs for ALL USERS with 75 PERCENT EMPTY MATRIX ******")
 min_MAE = min(res_array)
 print(res_array)
+print("\n")
 print("***** RESULTS WITH KNN with 75 PERCENT EMPTY MATRIX ******")
 print("Minimum Mean Absolute Error: ", min_MAE)
 print("Best K: ", res_array.index(min_MAE)+1)
@@ -307,6 +324,7 @@ predictions = algo.test(testset)
 top_n = get_top_n(predictions, n=10)
 
 # Print the 10 recommended items for each user
+print("\n")
 print("***** TOP 10 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
@@ -314,6 +332,7 @@ for uid, user_ratings in top_n.items():
 top_n = get_top_n(predictions, n=5)
 
 # Print the 5 recommended items for each user
+print("\n")
 print("***** TOP 5 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
@@ -321,6 +340,7 @@ for uid, user_ratings in top_n.items():
 top_n = get_top_n(predictions, n=2)
 
 # Print the 2 recommended items for each user
+print("\n")
 print("***** TOP 2 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
@@ -328,6 +348,11 @@ for uid, user_ratings in top_n.items():
 ######################################################
 #### MITIGATION OF SPARSITY PROBLEM: TASK #3
 ######################################################
+
+print("\n")
+print("\n")
+print("***** STARTING TASK #3 ******")
+print("\n")
 
 ## Splitting our dataset in train and test set in a ratio of 25%:75%
 trainset, testset = train_test_split(data, test_size=0.75)
@@ -370,11 +395,13 @@ predictions = algo.test(testset)
 top_n = get_top_n(predictions, n=10)
 
 # Print the recommended items for each user
+print("\n")
 print("***** TOP 10 RECOMMENDED ITEMS FOR EACH USER WITH SVD ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
 
 
 ## Calculate SVD's MAE 
+print("\n")
 print("***** MAE for SVD ******")
 surprise.accuracy.mae(predictions, verbose=True)
