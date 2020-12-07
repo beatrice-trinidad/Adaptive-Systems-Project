@@ -236,7 +236,7 @@ algo = KNNBasic(k = my_k, sim_options = sim_options)
 for trainset, testset in kf.split(data):
     algo.fit(trainset)
     predictions = algo.test(testset)
-    precisions, recalls = precision_recall_at_k(predictions, k=49, threshold=3.5)
+    precisions, recalls = precision_recall_at_k(predictions, k=my_k, threshold=3.5)
 
     # Precision and recall can then be averaged over all users
     print(sum(prec for prec in precisions.values()) / len(precisions))
@@ -345,6 +345,22 @@ print("***** TOP 2 RECOMMENDED ITEMS FOR EACH USER WITH KNN ******")
 for uid, user_ratings in top_n.items():
     print(uid, [iid for (iid, _) in user_ratings])
 
+###                                 ###
+###     PRECISION AND RECALL 75%    ###
+###                                 ###
+print("\n")
+print("***** PRECISION AND RECALL ******")
+
+for trainset, testset in kf.split(data):
+    algo.fit(trainset)
+    predictions = algo.test(testset)
+    precisions, recalls = precision_recall_at_k(predictions, k=my_k, threshold=3.5)
+
+    # Precision and recall can then be averaged over all users
+    print(sum(prec for prec in precisions.values()) / len(precisions))
+    print(sum(rec for rec in recalls.values()) / len(recalls))
+
+
 ######################################################
 #### MITIGATION OF SPARSITY PROBLEM: TASK #3
 ######################################################
@@ -405,3 +421,18 @@ for uid, user_ratings in top_n.items():
 print("\n")
 print("***** MAE for SVD ******")
 surprise.accuracy.mae(predictions, verbose=True)
+
+###                                 ###
+###     PRECISION AND RECALL SVD    ###
+###                                 ###
+print("\n")
+print("***** PRECISION AND RECALL ******")
+
+for trainset, testset in kf.split(data):
+    algo.fit(trainset)
+    predictions = algo.test(testset)
+    precisions, recalls = precision_recall_at_k(predictions, k=my_k, threshold=3.5)
+
+    # Precision and recall can then be averaged over all users
+    print(sum(prec for prec in precisions.values()) / len(precisions))
+    print(sum(rec for rec in recalls.values()) / len(recalls))
